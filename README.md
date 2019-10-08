@@ -1,6 +1,6 @@
 # pixelsorterino
 
-> pixelsorter school project
+> sort the pixels
 
 ## Build Setup
 
