@@ -42,9 +42,23 @@ export default {
 
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
 
+      const pixelarray = Array.from(imageData.data)
+
+      // eslint-disable-next-line
+      console.log(pixelarray)
+
+      // eslint-disable-next-line
+      console.log(this.spliceArray(pixelarray.flat(Infinity), 4))
+
       // sort image here
 
       context.putImageData(imageData, 0, 0)
+    },
+    spliceArray(arr, size) {
+      const res = []
+      for (let i = 0; i < arr.length; i = i + size)
+        res.push(arr.slice(i, i + size))
+      return res
     }
   }
 }
