@@ -42,17 +42,24 @@ export default {
 
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
 
-      const pixelarray = Array.from(imageData.data)
+      let pixelarray = Array.from(imageData.data)
+
+      pixelarray = this.spliceArray(pixelarray.flat(Infinity), 4)
+
+      pixelarray.sort(function(a, b) {
+        return a[1] > b[1] ? 1 : -1
+      })
 
       // eslint-disable-next-line
       console.log(pixelarray)
 
-      // eslint-disable-next-line
-      console.log(this.spliceArray(pixelarray.flat(Infinity), 4))
+      const modImage = new ImageData(
+        new Uint8ClampedArray(pixelarray.flat(Infinity)),
+        imageData.width,
+        imageData.height
+      )
 
-      // sort image here
-
-      context.putImageData(imageData, 0, 0)
+      context.putImageData(modImage, 0, 0)
     },
     spliceArray(arr, size) {
       const res = []
