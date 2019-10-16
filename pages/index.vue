@@ -53,8 +53,9 @@ export default {
         image.naturalHeight
       )
 
-      const pixelArray = this.groupSplitArray(Array.from(imageData.data), 4)
+      let pixelArray = this.groupSplitArray(Array.from(imageData.data), 4)
 
+      // // Sort by hue
       // const sortedPixelArray = pixelArray
       //   .map((c, i) => ({ color: this.rgbToHsl(c), index: i }))
       //   .sort((a, b) => b.color[0] - a.color[0])
@@ -62,17 +63,17 @@ export default {
 
       pixelArray.sort((a, b) => a[0] - b[0])
 
-      // big brain hack to avoid Array.flat
-      let sortedPixelArray = pixelArray + ''
-      sortedPixelArray = sortedPixelArray.split(',')
+      // big brain hack to avoid Array.flat (bloody mobile browsers...)
+      pixelArray = pixelArray + ''
+      pixelArray = pixelArray.split(',')
 
-      const sortedImage = new ImageData(
-        new Uint8ClampedArray(sortedPixelArray),
+      const sortedImageData = new ImageData(
+        new Uint8ClampedArray(pixelArray),
         imageData.width,
         imageData.height
       )
 
-      cx.putImageData(sortedImage, 0, 0)
+      cx.putImageData(sortedImageData, 0, 0)
 
       this.sortedImage = cv.toDataURL()
     },
