@@ -5,13 +5,19 @@
         pixelsorterino
       </h1>
 
-      <img ref="sourceImage" :src="file" alt="source" />
+      <img v-if="file" ref="sourceImage" :src="file" alt="source" />
 
       <canvas ref="canvas" style="display:none"></canvas>
       <img v-if="sortedImage" :src="sortedImage" />
 
       <FileSelector v-model="file"></FileSelector>
-      <button @click="sort">Sort</button>
+      <button
+        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+        :disabled="file === null"
+        @click="sort"
+      >
+        Sort
+      </button>
     </div>
   </div>
 </template>
