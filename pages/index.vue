@@ -53,20 +53,21 @@ export default {
         image.naturalHeight
       )
 
-      const pixelArray = this.spliceArray(
-        Array.from(imageData.data).flat(Infinity),
-        4
-      )
+      const pixelArray = this.groupSplitArray(Array.from(imageData.data), 4)
 
       // const sortedPixelArray = pixelArray
       //   .map((c, i) => ({ color: this.rgbToHsl(c), index: i }))
       //   .sort((a, b) => b.color[0] - a.color[0])
       //   .map((data) => pixelArray[data.index])
 
-      const sortedPixelArray = pixelArray.sort((a, b) => (a[0] > b[0] ? 1 : -1))
+      pixelArray.sort((a, b) => a[0] - b[0])
+
+      // big brain hack to avoid Array.flat
+      let sortedPixelArray = pixelArray + ''
+      sortedPixelArray = sortedPixelArray.split(',')
 
       const sortedImage = new ImageData(
-        new Uint8ClampedArray(sortedPixelArray.flat(Infinity)),
+        new Uint8ClampedArray(sortedPixelArray),
         imageData.width,
         imageData.height
       )
@@ -75,7 +76,7 @@ export default {
 
       this.sortedImage = cv.toDataURL()
     },
-    spliceArray(arr, size) {
+    groupSplitArray(arr, size) {
       const res = []
       for (let i = 0; i < arr.length; i = i + size)
         res.push(arr.slice(i, i + size))
