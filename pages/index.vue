@@ -5,8 +5,10 @@
         pixelsorterino
       </h1>
 
-      <img id="SourceImage" :src="file" alt="source" />
-      <canvas id="Canvas"></canvas>
+      <img ref="sourceImage" :src="file" alt="source" />
+
+      <canvas ref="canvas" style="display:none"></canvas>
+      <img v-if="sortedImage" :src="sortedImage" />
 
       <FileSelector v-model="file"></FileSelector>
       <button @click="sort">Sort</button>
@@ -23,24 +25,27 @@ export default {
   },
   data() {
     return {
-      file: null
+      file: null,
+      sortedImage: null
     }
   },
   methods: {
     sort() {
-      // eslint-disable-next-line
-      console.log(this.file)
+      const image = this.$refs.sourceImage
+      const cv = this.$refs.canvas
+      const cx = cv.getContext('2d')
 
-      const image = document.getElementById('SourceImage')
-      const canvas = document.getElementById('Canvas')
-      const context = canvas.getContext('2d')
+      cv.width = image.naturalWidth
+      cv.height = image.naturalHeight
 
-      canvas.width = image.width
-      canvas.height = image.height
+      cx.drawImage(image, 0, 0)
 
-      context.drawImage(image, 0, 0)
-
-      const imageData = context.getImageData(0, 0, image.width, image.height)
+      const imageData = cx.getImageData(
+        0,
+        0,
+        image.naturalWidth,
+        image.naturalHeight
+      )
 
       const pixelArray = this.spliceArray(
         Array.from(imageData.data).flat(Infinity),
@@ -52,7 +57,7 @@ export default {
       //   .sort((a, b) => b.color[0] - a.color[0])
       //   .map((data) => pixelArray[data.index])
 
-      const sortedPixelArray = pixelArray.sort((a, b) => a[0] > b[0])
+      const sortedPixelArray = pixelArray.sort((a, b) => (a[0] > b[0] ? 1 : -1))
 
       const sortedImage = new ImageData(
         new Uint8ClampedArray(sortedPixelArray.flat(Infinity)),
@@ -60,7 +65,9 @@ export default {
         imageData.height
       )
 
-      context.putImageData(sortedImage, 0, 0)
+      cx.putImageData(sortedImage, 0, 0)
+
+      this.sortedImage = cv.toDataURL()
     },
     spliceArray(arr, size) {
       const res = []
