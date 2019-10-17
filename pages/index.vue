@@ -1,14 +1,9 @@
 <template>
-  <div class="container">
+  <div class="container mx-auto">
     <div>
       <h1 class="title">
         pixelsorterino
       </h1>
-
-      <img v-if="file" ref="sourceImage" :src="file" alt="source" />
-
-      <canvas ref="canvas" style="display:none"></canvas>
-      <img v-if="sortedImage" :src="sortedImage" />
 
       <FileSelector v-model="file"></FileSelector>
       <button
@@ -18,6 +13,11 @@
       >
         Sort
       </button>
+
+      <img v-if="file" ref="sourceImage" :src="file" alt="source" />
+
+      <canvas ref="canvas" style="display:none"></canvas>
+      <img v-if="sortedImage" :src="sortedImage" />
     </div>
   </div>
 </template>
@@ -53,31 +53,48 @@ export default {
         image.naturalHeight
       )
 
-      let pixelArray = this.groupSplitArray(Array.from(imageData.data), 4)
+      let pixelArray = this.partArray(Array.from(imageData.data), 4)
 
-      // // Sort by hue
-      // const sortedPixelArray = pixelArray
-      //   .map((c, i) => ({ color: this.rgbToHsl(c), index: i }))
-      //   .sort((a, b) => b.color[0] - a.color[0])
-      //   .map((data) => pixelArray[data.index])
+      const sortPixels = () => {
+        // // Sort by hue
+        // const sortedPixelArray = pixelArray
+        //   .map((c, i) => ({ color: this.rgbToHsl(c), index: i }))
+        //   .sort((a, b) => b.color[0] - a.color[0])
+        //   .map((data) => pixelArray[data.index])
+        return new Promise((resolve) => {
+          resolve(pixelArray.sort((a, b) => a[0] - b[0]))
+        })
+      }
 
-      pixelArray.sort((a, b) => a[0] - b[0])
+      sortPixels().then(() => {
+        // big brain hack to avoid Array.flat (bloody mobile browsers...)
+        pixelArray = pixelArray + ''
+        pixelArray = pixelArray.split(',')
 
-      // big brain hack to avoid Array.flat (bloody mobile browsers...)
-      pixelArray = pixelArray + ''
-      pixelArray = pixelArray.split(',')
+        const sortedImageData = new ImageData(
+          new Uint8ClampedArray(pixelArray),
+          imageData.width,
+          imageData.height
+        )
 
-      const sortedImageData = new ImageData(
-        new Uint8ClampedArray(pixelArray),
-        imageData.width,
-        imageData.height
-      )
+        cx.putImageData(sortedImageData, 0, 0)
 
-      cx.putImageData(sortedImageData, 0, 0)
-
-      this.sortedImage = cv.toDataURL()
+        this.sortedImage = cv.toDataURL()
+      })
     },
-    groupSplitArray(arr, size) {
+    sortPixels(arr) {
+      return new Promise((resolve) => {
+        // // Sort by hue
+        // const sortedPixelArray = pixelArray
+        //   .map((c, i) => ({ color: this.rgbToHsl(c), index: i }))
+        //   .sort((a, b) => b.color[0] - a.color[0])
+        //   .map((data) => pixelArray[data.index])
+
+        arr.sort((a, b) => a[0] - b[0])
+        resolve('sorted')
+      })
+    },
+    partArray(arr, size) {
       const res = []
       for (let i = 0; i < arr.length; i = i + size)
         res.push(arr.slice(i, i + size))
