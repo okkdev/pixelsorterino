@@ -5,7 +5,7 @@
       class="border-4 border-dashed border-teal-500 rounded-lg p-4 my-3 w-full text-center"
       accept="image/jpeg, image/png, image/gif"
       @change="handleFileChange"
-      @drop="dropFile"
+      @drop="handleFileChange"
     />
   </div>
 </template>
@@ -14,14 +14,39 @@
 export default {
   methods: {
     handleFileChange(e) {
-      const reader = new FileReader()
-      reader.onload = (ev) => this.$emit('input', ev.target.result)
-      reader.readAsDataURL(e.target.files[0])
-    },
-    dropFile(e) {
-      const reader = new FileReader()
-      reader.onload = (ev) => this.$emit('input', ev.target.result)
-      reader.readAsDataURL(e.dataTransfer.files[0])
+      let file = null
+
+      if (!e.target.files[0]) {
+        file = e.dataTransfer.files[0]
+      } else {
+        file = e.target.files[0]
+      }
+
+      if (
+        file.type === 'image/jpeg' ||
+        file.type === 'image/png' ||
+        file.type === 'image/gif'
+      ) {
+        const reader = new FileReader()
+
+        reader.onload = (ev) => {
+          const img = new Image()
+
+          img.onload = () => {
+            if (img.width > 2000 || img.height > 2000) {
+              this.$toast.show('Image size too big!')
+            } else {
+              this.$emit('input', reader.result)
+            }
+          }
+
+          img.src = reader.result
+        }
+
+        reader.readAsDataURL(file)
+      } else {
+        this.$toast.show('File type not supported!')
+      }
     }
   }
 }
