@@ -1,24 +1,18 @@
 <template>
-  <div class="container mx-auto">
-    <div>
-      <h1 class="title">
-        pixelsorterino
-      </h1>
+  <div>
+    <FileSelector v-model="file"></FileSelector>
+    <button
+      class="px-3 py-2 font-medium text-center bg-gray-300 rounded-lg text-gray-900 hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+      :disabled="file === null"
+      @click="sort"
+    >
+      Sort
+    </button>
 
-      <FileSelector v-model="file"></FileSelector>
-      <button
-        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-        :disabled="file === null"
-        @click="sort"
-      >
-        Sort
-      </button>
+    <img v-if="file" ref="sourceImage" :src="file" alt="source" />
 
-      <img v-if="file" ref="sourceImage" :src="file" alt="source" />
-
-      <canvas ref="canvas" style="display:none"></canvas>
-      <img v-if="sortedImage" :src="sortedImage" />
-    </div>
+    <canvas ref="canvas" style="display:none"></canvas>
+    <img v-if="sortedImage" :src="sortedImage" />
   </div>
 </template>
 

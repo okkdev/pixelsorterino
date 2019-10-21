@@ -1,3 +1,6 @@
 <template>
-  <img src="" />
+  <div>
+    image
+    <img src="" />
+  </div>
 </template>
