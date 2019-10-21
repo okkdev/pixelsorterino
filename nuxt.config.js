@@ -43,8 +43,17 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/pwa'
+    '@nuxtjs/pwa',
+    '@nuxtjs/toast'
   ],
+  toast: {
+    position: 'bottom-center',
+    type: 'error',
+    duration: 10000,
+    register: [
+      // Register custom toasts
+    ]
+  },
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
