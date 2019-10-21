@@ -27,7 +27,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ['~/plugins/pagination'],
   /*
    ** Nuxt.js dev-modules
    */
@@ -44,7 +44,8 @@ export default {
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
-    '@nuxtjs/toast'
+    '@nuxtjs/toast',
+    '@nuxtjs/apollo'
   ],
   toast: {
     position: 'bottom-center',
@@ -53,6 +54,13 @@ export default {
     register: [
       // Register custom toasts
     ]
+  },
+  apollo: {
+    clientConfigs: {
+      default: {
+        httpEndpoint: 'https://pixelsorterino-db.herokuapp.com/v1/graphql'
+      }
+    }
   },
   /*
    ** Axios module configuration
