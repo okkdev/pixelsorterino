@@ -1,6 +1,6 @@
 <template>
   <div>
-    <FileSelector v-model="file"></FileSelector>
+    <FileSelector v-if="!sortedImage" v-model="file"></FileSelector>
 
     <div v-if="file">
       <div
@@ -19,7 +19,7 @@
       </button>
 
       <button v-if="sortedImage !== null" class="button" @click="reset">
-        Reset
+        Back
       </button>
     </div>
 
