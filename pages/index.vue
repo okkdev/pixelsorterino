@@ -1,18 +1,27 @@
 <template>
   <div>
     <FileSelector v-model="file"></FileSelector>
-    <button
-      class="px-3 py-2 font-medium text-center bg-gray-300 rounded-lg text-gray-900 hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
-      :disabled="file === null"
-      @click="sort"
-    >
-      Sort
-    </button>
 
-    <img v-if="file" ref="sourceImage" :src="file" alt="source" />
+    <div v-if="file">
+      <div class="p-3 rounded-lg border-2 border-solid border-gray-200">
+        <img v-if="!sortedImage" ref="sourceImage" :src="file" alt="source" />
+        <img v-if="sortedImage" :src="sortedImage" />
+      </div>
+
+      <button
+        class="button"
+        :disabled="file === null || sortedImage !== null"
+        @click="sort"
+      >
+        Sort
+      </button>
+
+      <button v-if="sortedImage !== null" class="button" @click="reset">
+        Reset
+      </button>
+    </div>
 
     <canvas ref="canvas" style="display:none"></canvas>
-    <img v-if="sortedImage" :src="sortedImage" />
   </div>
 </template>
 
@@ -49,18 +58,7 @@ export default {
 
       let pixelArray = this.partArray(Array.from(imageData.data), 4)
 
-      const sortPixels = () => {
-        // // Sort by hue
-        // const sortedPixelArray = pixelArray
-        //   .map((c, i) => ({ color: this.rgbToHsl(c), index: i }))
-        //   .sort((a, b) => b.color[0] - a.color[0])
-        //   .map((data) => pixelArray[data.index])
-        return new Promise((resolve) => {
-          resolve(pixelArray.sort((a, b) => a[0] - b[0]))
-        })
-      }
-
-      sortPixels().then(() => {
+      this.sortPixels(pixelArray).then(() => {
         // big brain hack to avoid Array.flat (bloody mobile browsers...)
         pixelArray = pixelArray + ''
         pixelArray = pixelArray.split(',')
@@ -87,6 +85,9 @@ export default {
         arr.sort((a, b) => a[0] - b[0])
         resolve('sorted')
       })
+    },
+    reset() {
+      this.sortedImage = null
     },
     partArray(arr, size) {
       const res = []
