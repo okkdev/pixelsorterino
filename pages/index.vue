@@ -3,13 +3,15 @@
     <FileSelector v-model="file"></FileSelector>
 
     <div v-if="file">
-      <div class="p-3 rounded-lg border-2 border-solid border-gray-200">
+      <div
+        class="p-3 my-2 rounded-lg border-2 border-solid border-gray-300 bg-gray-200"
+      >
         <img v-if="!sortedImage" ref="sourceImage" :src="file" alt="source" />
         <img v-if="sortedImage" :src="sortedImage" />
       </div>
 
       <button
-        class="button"
+        class="button mr-2"
         :disabled="file === null || sortedImage !== null"
         @click="sort"
       >

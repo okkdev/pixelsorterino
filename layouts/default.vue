@@ -19,7 +19,7 @@ export default {
 
 <style>
 .button {
-  @apply px-3 py-2 m-2 font-medium text-center bg-gray-300 rounded-lg text-gray-900;
+  @apply px-3 py-2 font-medium text-center bg-gray-300 rounded-lg text-gray-900;
 }
 
 .button:hover {
