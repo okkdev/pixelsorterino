@@ -27,23 +27,28 @@ export default {
         file.type === 'image/png' ||
         file.type === 'image/gif'
       ) {
-        const reader = new FileReader()
+        // smaller than 20mb
+        if (file.size < 20000000) {
+          const reader = new FileReader()
 
-        reader.onload = (ev) => {
-          const img = new Image()
+          reader.onload = (ev) => {
+            const img = new Image()
 
-          img.onload = () => {
-            if (img.width > 2000 || img.height > 2000) {
-              this.$toast.show('Image size too big!')
-            } else {
-              this.$emit('input', reader.result)
+            img.onload = () => {
+              if (img.width > 2000 || img.height > 2000) {
+                this.$toast.show('Image too large!')
+              } else {
+                this.$emit('input', reader.result)
+              }
             }
+
+            img.src = reader.result
           }
 
-          img.src = reader.result
+          reader.readAsDataURL(file)
+        } else {
+          this.$toast.show('Image size too big!')
         }
-
-        reader.readAsDataURL(file)
       } else {
         this.$toast.show('File type not supported!')
       }
