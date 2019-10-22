@@ -148,6 +148,8 @@ export default {
             this.sortedImageSmall = cvs.toDataURL()
             resolve()
           }
+        } else {
+          resolve('image too small')
         }
       })
     },
