@@ -10,12 +10,16 @@
         <img v-if="sortedImage" :src="sortedImage" />
       </div>
 
-      <button
-        class="button mr-2"
-        :disabled="file === null || sortedImage !== null"
-        @click="sort"
-      >
+      <button v-if="sortedImage === null" class="button mr-2" @click="sort">
         Sort
+      </button>
+
+      <button
+        v-if="sortedImage !== null"
+        class="button mr-2"
+        @click="uploadAction"
+      >
+        Upload
       </button>
 
       <button v-if="sortedImage !== null" class="button" @click="reset">
@@ -24,11 +28,22 @@
     </div>
 
     <canvas ref="canvas" style="display:none"></canvas>
+    <canvas ref="canvasSmall" style="display:none"></canvas>
   </div>
 </template>
 
 <script>
+import gql from 'graphql-tag'
+
 import FileSelector from '~/components/FileSelector'
+
+const UPLOAD_IMAGE = gql`
+  mutation insert_image($url: String!, $urlSmall: String!) {
+    insert_image(objects: { url: $url, url_small: $urlSmall }) {
+      affected_rows
+    }
+  }
+`
 
 export default {
   components: {
@@ -37,7 +52,11 @@ export default {
   data() {
     return {
       file: null,
+      image: null,
       sortedImage: null,
+      sortedImageSmall: null,
+      imageURL: null,
+      imageURLsmall: null,
       imageWorker: null
     }
   },
@@ -54,21 +73,16 @@ export default {
         position: 'top-center'
       })
 
-      const image = this.$refs.sourceImage
+      this.image = this.$refs.sourceImage
+
       const cv = this.$refs.canvas
       const cx = cv.getContext('2d')
+      cv.width = this.image.naturalWidth
+      cv.height = this.image.naturalHeight
 
-      cv.width = image.naturalWidth
-      cv.height = image.naturalHeight
+      cx.drawImage(this.image, 0, 0)
 
-      cx.drawImage(image, 0, 0)
-
-      const imageData = cx.getImageData(
-        0,
-        0,
-        image.naturalWidth,
-        image.naturalHeight
-      )
+      const imageData = cx.getImageData(0, 0, cv.width, cv.height)
 
       this.imageWorker.postMessage(imageData)
       this.imageWorker.onmessage = ({ data: sortedImageData }) => {
@@ -84,8 +98,106 @@ export default {
         })
       }
     },
+    sortSmall() {
+      return new Promise((resolve) => {
+        if (this.image.naturalWidth > 1000 || this.image.naturalHeight > 1000) {
+          const cvs = this.$refs.canvasSmall
+          const cxs = cvs.getContext('2d')
+
+          cvs.width = Math.round(this.image.naturalWidth / 2)
+          cvs.height = Math.round(this.image.naturalHeight / 2)
+
+          cxs.drawImage(this.image, 0, 0, cvs.width, cvs.height)
+
+          const imageDataSmall = cxs.getImageData(0, 0, cvs.width, cvs.height)
+
+          this.imageWorker.postMessage(imageDataSmall)
+          this.imageWorker.onmessage = ({ data: sortedImageDataSmall }) => {
+            cxs.putImageData(sortedImageDataSmall, 0, 0)
+
+            this.sortedImageSmall = cvs.toDataURL()
+            resolve()
+          }
+        }
+      })
+    },
     reset() {
       this.sortedImage = null
+      this.sortedImageSmall = null
+    },
+    dataURLtoBlob(dataurl) {
+      const arr = dataurl.split(',')
+      const mime = arr[0].match(/:(.*?);/)[1]
+      const bstr = atob(arr[1])
+      let n = bstr.length
+      const u8arr = new Uint8Array(n)
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n)
+      }
+      return new Blob([u8arr], { type: mime })
+    },
+    async uploadAction() {
+      this.$toast.show('Uploading...', {
+        type: 'info',
+        position: 'top-center'
+      })
+
+      this.imageURL = await this.upload(this.sortedImage)
+
+      this.sortSmall().then(async () => {
+        if (this.sortedImageSmall !== null) {
+          this.imageURLsmall = await this.upload(this.sortedImageSmall)
+        }
+      })
+
+      this.pushToDB()
+
+      this.$toast.clear()
+      this.$toast.show('Success!', {
+        type: 'success',
+        position: 'top-center',
+        duration: 1000
+      })
+    },
+    upload(image) {
+      return new Promise((resolve) => {
+        const file = this.dataURLtoBlob(image)
+        const data = new FormData()
+        data.append('reqtype', 'fileupload')
+        data.append('userhash', '')
+        data.append('fileToUpload', file)
+
+        const config = {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
+        this.$axios
+          .post(
+            'https://cors-anywhere.herokuapp.com/https://catbox.moe/user/api.php',
+            data,
+            config
+          )
+          .then((response) => {
+            resolve(response.data)
+          })
+      })
+    },
+    pushToDB() {
+      return new Promise((resolve) => {
+        if (this.imageURLsmall === null) {
+          this.imageURLsmall = this.imageURL
+        }
+        this.$apollo
+          .mutate({
+            mutation: UPLOAD_IMAGE,
+            variables: {
+              url: this.imageURL,
+              urlSmall: this.imageURLsmall
+            }
+          })
+          .then((response) => {
+            resolve()
+          })
+      })
     }
   }
 }

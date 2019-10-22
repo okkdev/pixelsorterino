@@ -1,5 +1,7 @@
 <template>
-  <nav class="flex items-center justify-between flex-wrap bg-teal-500 p-4 mb-4">
+  <nav
+    class="flex items-center justify-between flex-wrap bg-teal-500 p-4 mb-4 no-underline"
+  >
     <div class="flex items-center flex-shrink-0 text-white mr-6">
       <nuxt-link to="/" class="font-semibold text-xl tracking-tight"
         >Pixelsorterino</nuxt-link
@@ -26,17 +28,15 @@
     >
       <div class="text-sm lg:flex-grow">
         <nuxt-link
-          to="/history"
+          to="/library"
           class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4"
+          >Library</nuxt-link
         >
-          History
-        </nuxt-link>
         <nuxt-link
           to="/about"
           class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4"
+          >About</nuxt-link
         >
-          About
-        </nuxt-link>
       </div>
     </div>
   </nav>
