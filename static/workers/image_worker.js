@@ -4,7 +4,7 @@ const partArray = (arr, size) => {
   return res
 }
 
-// const rgbToHsl = (rgb) => {
+// const rgbToHsv = (rgb) => {
 //   const r = rgb[0] / 255
 //   const g = rgb[1] / 255
 //   const b = rgb[2] / 255
@@ -30,9 +30,9 @@ const partArray = (arr, size) => {
 //   return [h, s, v]
 // }
 
-onmessage = ({ data: imageData }) => {
+onmessage = ({ data: { imageData, sortColor } }) => {
   const arr = partArray(Array.from(imageData.data), 4).sort(
-    (a, b) => a[0] - b[0]
+    (a, b) => a[sortColor] - b[sortColor]
   )
 
   // // Sort by hue

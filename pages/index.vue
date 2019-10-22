@@ -10,7 +10,33 @@
         <img v-if="sortedImage" :src="sortedImage" />
       </div>
 
-      <button v-if="sortedImage === null" class="button mr-2" @click="sort">
+      <div v-if="sortedImage === null" class="inline-block relative">
+        <select
+          v-model="sortColor"
+          class="block appearance-none inline-flex w-full items-center pl-3 pr-8 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+        >
+          >
+          <option value="0">Red</option>
+          <option value="1">Green</option>
+          <option value="2">Blue</option>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+        >
+          <svg class="ml-3 h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <button
+        v-if="sortedImage === null"
+        class="button mr-2"
+        :disabled="sortColor === undefined ? true : false"
+        @click="sort"
+      >
         Sort
       </button>
 
@@ -57,7 +83,8 @@ export default {
       sortedImageSmall: null,
       imageURL: null,
       imageURLsmall: null,
-      imageWorker: null
+      imageWorker: null,
+      sortColor: 0
     }
   },
   mounted() {
@@ -84,7 +111,7 @@ export default {
 
       const imageData = cx.getImageData(0, 0, cv.width, cv.height)
 
-      this.imageWorker.postMessage(imageData)
+      this.imageWorker.postMessage({ imageData, sortColor: this.sortColor })
       this.imageWorker.onmessage = ({ data: sortedImageData }) => {
         cx.putImageData(sortedImageData, 0, 0)
 
@@ -111,7 +138,10 @@ export default {
 
           const imageDataSmall = cxs.getImageData(0, 0, cvs.width, cvs.height)
 
-          this.imageWorker.postMessage(imageDataSmall)
+          this.imageWorker.postMessage({
+            imageData: imageDataSmall,
+            sortColor: this.sortColor
+          })
           this.imageWorker.onmessage = ({ data: sortedImageDataSmall }) => {
             cxs.putImageData(sortedImageDataSmall, 0, 0)
 
@@ -144,11 +174,11 @@ export default {
 
       this.imageURL = await this.upload(this.sortedImage)
 
-      this.sortSmall().then(async () => {
-        if (this.sortedImageSmall !== null) {
-          this.imageURLsmall = await this.upload(this.sortedImageSmall)
-        }
-      })
+      await this.sortSmall()
+
+      if (this.sortedImageSmall !== null) {
+        this.imageURLsmall = await this.upload(this.sortedImageSmall)
+      }
 
       this.pushToDB()
 

@@ -1,11 +1,15 @@
 <template>
-  <div>
-    <li v-for="i in image" :key="i.id">
+  <div class="flex justify-center flex-wrap">
+    <div
+      v-for="i in image"
+      :key="i.id"
+      class="p-3 my-2 mr-3 h-40 w-40 rounded-lg border-2 border-solid border-gray-300 bg-gray-200 lg:h-56 lg:w-56"
+    >
       <picture>
         <source :srcset="i.url" media="(min-width: 800px)" />
-        <img :src="i.url_small" />
+        <img class="max-w-full max-h-full mx-auto" :src="i.url_small" />
       </picture>
-    </li>
+    </div>
   </div>
 </template>
 
@@ -41,20 +45,6 @@ export default {
   apollo: {
     image: {
       query: GET_IMAGES
-    }
-  },
-  methods: {
-    fetchImages(opts) {
-      this.images = this.$apollo
-        .query({
-          query: GET_IMAGES
-        })
-        .then((response) => console.log(response.json()))
-
-      // return {
-      //   total: images.total,
-      //   data: images.items
-      // }
     }
   }
 }
