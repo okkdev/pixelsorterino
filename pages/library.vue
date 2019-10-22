@@ -14,7 +14,6 @@
 </template>
 
 <script>
-// import { createResource, createInstance } from 'vuex-pagination'
 import gpl from 'graphql-tag'
 
 const GET_IMAGES = gpl`{
@@ -25,23 +24,11 @@ const GET_IMAGES = gpl`{
 }`
 
 export default {
-  // data() {
-  //   return {
-  //     images: null
-  //   }
-  // },
-  // computed: {
-  //   images: createInstance('images', {
-  //     page: 1,
-  //     pageSize: 10
-  //   })
-  // },
-  // mounted() {
-  // createResource('images', this.fetchImages, {
-  //   prefetch: true
-  // })
-  // this.fetchImages(10)
-  // },
+  data() {
+    return {
+      image: []
+    }
+  },
   apollo: {
     image: {
       query: GET_IMAGES

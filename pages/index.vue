@@ -173,6 +173,7 @@ export default {
       })
 
       this.imageURL = await this.upload(this.sortedImage)
+      this.imageURLsmall = this.imageURL
 
       await this.sortSmall()
 
@@ -212,22 +213,17 @@ export default {
       })
     },
     pushToDB() {
-      return new Promise((resolve) => {
-        if (this.imageURLsmall === null) {
-          this.imageURLsmall = this.imageURL
-        }
-        this.$apollo
-          .mutate({
-            mutation: UPLOAD_IMAGE,
-            variables: {
-              url: this.imageURL,
-              urlSmall: this.imageURLsmall
-            }
-          })
-          .then((response) => {
-            resolve()
-          })
-      })
+      this.$apollo
+        .mutate({
+          mutation: UPLOAD_IMAGE,
+          variables: {
+            url: this.imageURL,
+            urlSmall: this.imageURLsmall
+          }
+        })
+        .then((response) => {
+          console.log(response)
+        })
     }
   }
 }
