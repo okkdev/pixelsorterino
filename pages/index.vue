@@ -19,6 +19,7 @@
           <option value="0">Red</option>
           <option value="1">Green</option>
           <option value="2">Blue</option>
+          <option value="3">Hue</option>
         </select>
         <div
           class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
@@ -184,13 +185,6 @@ export default {
       }
 
       this.pushToDB()
-
-      this.$toast.clear()
-      this.$toast.show('Success!', {
-        type: 'success',
-        position: 'top-center',
-        duration: 1000
-      })
     },
     upload(image) {
       return new Promise((resolve) => {
@@ -224,7 +218,12 @@ export default {
           }
         })
         .then((response) => {
-          console.log(response)
+          this.$toast.clear()
+          this.$toast.show('Success!', {
+            type: 'success',
+            position: 'top-center',
+            duration: 1000
+          })
         })
     }
   }
